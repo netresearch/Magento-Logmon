@@ -26,7 +26,7 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
     const DEFAULT_TYPE_EXCEPTION  = 'exception';
     const DEFAULT_LEVEL_LOG       = Zend_Log::INFO;
     const DEFAULT_LEVEL_EXCEPTION = Zend_Log::ERR;
-    
+
     public $config;
 
     protected function _construct()
@@ -34,7 +34,7 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
         $this->_init('logmon/log');
         $this->config = Mage::getStoreConfig('dev/logmon');
     }
-    
+
     /**
      * log something
      * parameters
@@ -46,9 +46,9 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
      * - log_level  (optional)
      * - stacktrace (optional)
      * - timestamp  (optional)
-     * 
+     *
      * @param array $log_data Associative array with fields defined above
-     * 
+     *
      * @return int
      */
     public function log($log_data)
@@ -70,7 +70,7 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
             if (false == isset($this->_data['timestamp'])) {
                 $now = Zend_Date::now();
                 $now->setTimezone('UTC');
-                
+
                 $this->_data['timestamp'] = $now->toString('Y-M-d H:m:s');
             }
             if (isset($this->_data['exception']) and false == is_null($this->_data['exception'])) {
@@ -84,37 +84,37 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
                 $this->_data['exception'] = get_class($exception);
             }
             if (isset($this->_data['stack']) and false == is_null($this->_data['stack']) and false == is_string($this->_data['stack'])) {
-                $this->_data['stack'] = json_encode($this->_data['stack']);
+                $this->_data['stack'] = @Zend_Json::encode($this->_data['stack']);
             }
             if (isset($this->_data['data']) and false == is_null($this->_data['data'])) {
-                $this->_data['data'] = json_encode($this->_data['data']);
+                $this->_data['data'] = Zend_Json::encode($this->_data['data']);
             }
-            
+
             $this->save();
-            
+
             if ($this->getLogLevel() <= (int) $this->config['mailMaxLevel']) {
                 $this->sendMail();
             }
         } catch (Exception $e) {
             // no logging if logging fails...
         }
-        
+
         return $this->getId();
     }
-    
+
     /**
      * get log entry description
-     * 
+     *
      * @return string
      */
     public function __toString()
     {
         return $this->getShortDescription();
     }
-    
+
     /**
      * get short description of the log entry
-     * 
+     *
      * @return string
      */
     public function getShortDescription()
@@ -130,24 +130,24 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
         }
         return $string;
     }
-    
+
     /**
      * send a mail concerning the log entry
-     * 
+     *
      * @return void
      */
     public function sendMail()
     {
         $vars = $this->_data;
         $vars['short_description'] = $this->getShortDescription();
-        
+
         if (isset($vars['stack']) and false == is_null($vars['stack'])) {
             $vars['stack'] = print_r(json_decode($vars['stack']), true);
         }
         if (isset($vars['data']) and false == is_null($vars['data'])) {
             $vars['data'] = print_r(json_decode($vars['data']), true);
         }
-        
+
         // Recipients
         $recipient = $this->config['receiverMailAddress'];
 

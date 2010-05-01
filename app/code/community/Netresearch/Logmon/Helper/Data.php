@@ -16,6 +16,8 @@
  */
 
 /**
+ * Netresearch_Logmon_Helper_Data
+ *
  * @category   Logging_Monitoring
  * @package    Netresearch_Logmon
  * @author     Thomas Kappel <thomas.kappel@netresearch.de>
@@ -23,52 +25,32 @@
 class Netresearch_Logmon_Helper_Data extends Mage_Core_Helper_Abstract
 {
     /**
-     * write a simple message to the log
-     * 
-     * @param string $message Message to log
-     * @param int    $level   Log level
-     * @param string $module  Name of the module, where the message comes from
-     * @param mixed  $data    some additional data
-     * 
-     * @return int
+     * Write a simple string, exception or array to log.
+     *
+     * @param  string|array|Exception    $log       Data to log
+     * @param  integer                   $level     Log level
+     * @param  string                    $module    Name of the module, where the message comes from
+     * @param  mixed                     $data      Some additional data
+     * @param  boolean                   $stack     Save stack, otherwise debug backtrace is used
+     * @return integer
      */
-    public function logMessage($message, $level=null, $module=null, $data=null, $save_stack=false)
+    public function log($log, $level = null, $module = null, $data = null,
+        $stack = false)
     {
-        return Mage::getModel('logmon/log')->log(array(
-            'message'   => $message,
-            'log_level' => $level,
-            'data'      => $data,
-            'module'    => $module,
-            'stack'     => ($save_stack ? debug_backtrace() : null)
-        ));
-    }
-    
-    /**
-     * write something to the log
-     * 
-     * @param array $log_data Data to log
-     * 
-     * @return int
-     */
-    public function log($log_data)
-    {
-        return Mage::getModel('logmon/log')->log($log_data);
-    }
-    
-    /**
-     * write an exception to the log
-     * 
-     * @param string $message Message to log
-     * @param int    $level   Log level
-     * 
-     * @return int
-     */
-    public function logException(Exception $e, $module=null, $data=null)
-    {
-        return Mage::getModel('logmon/log')->log(array(
-            'exception' => $e,
-            'module'    => $module,
-            'data'      => $data
-        ));
+        if (!is_array($log)) {
+            if ($log instanceof Exception) {
+                // Write an exception to the log.
+                $log = array('exception' => $log);
+            } else {
+                // Write a simple message to the log.
+                $log = array(
+                    'message'   => $log,
+                    'log_level' => $level,
+                    'stack'     => ($stack ? debug_backtrace() : null));
+            }
+            // Append additional data to log.
+            $log += array('data' => $data, 'module' => $module);
+        }
+        return Mage::getModel('logmon/log')->log($log);
     }
 }
