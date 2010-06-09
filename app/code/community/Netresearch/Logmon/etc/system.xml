@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!--
+ * @category   Logging_Monitoring
+ * @package    Netresearch_Logmon
+ * @author     Thomas Kappel <thomas.kappel@netresearch.de>
+ * @copyright  Copyright (c) 2010 Netresearch GmbH & Co.KG <http://www.netresearch.de/>
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+-->
+<config>
+    <sections>
+        <dev>
+            <groups>
+                <logmon translate="label">
+                    <label>Logging &amp; Monitoring</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>95</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label comment">
+                            <label>Active</label>
+                            <comment>Select 'Yes' to enable monitoring</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active>
+                    </fields>
+                </logmon>
+            </groups>
+        </dev>
+    </sections>
+</config>
