@@ -1,10 +1,20 @@
 <?xml version="1.0"?>
 <!--
+ * Netresearch_Logmon extension
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
  * @category   Logging_Monitoring
  * @package    Netresearch_Logmon
  * @author     Thomas Kappel <thomas.kappel@netresearch.de>
  * @copyright  Copyright (c) 2010 Netresearch GmbH & Co.KG <http://www.netresearch.de/>
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
 -->
 
 <config>
@@ -14,10 +24,101 @@
         </Netresearch_Logmon>
     </modules>
     <global>
+        <blocks>
+            <logmon><class>Netresearch_Logmon_Block</class></logmon>
+        </blocks>
         <helpers>
             <logmon>
                 <class>Netresearch_Logmon_Helper</class>
             </logmon>
         </helpers>
+        <models>
+            <logmon>
+                <class>Netresearch_Logmon_Model</class>
+                <resourceModel>logmon_mysql4</resourceModel>
+            </logmon>
+            <logmon_mysql4>
+                <class>Netresearch_Logmon_Model_Mysql4</class>
+                <entities>
+                    <log>
+                        <table>netresearch_logmon</table>
+                    </log>
+                </entities>
+            </logmon_mysql4>
+        </models>
+        <resources>
+            <logmon_setup>
+                <setup>
+                    <module>Netresearch_Logmon</module>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </logmon_setup>
+            <logmon_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </logmon_write>
+            <logmon_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </logmon_read>
+        </resources>
     </global>
+    <admin>
+         <routers>
+            <logmon>
+                <use>admin</use>
+                <args>
+                    <module>Netresearch_Logmon</module>
+                    <frontName>logmon</frontName>
+                </args>
+            </logmon>
+        </routers>
+    </admin>
+    <adminhtml>
+        <menu>
+            <system>
+                <children>
+                    <logmon translate="title" module="logmon">
+                        <title>Logging &amp; Monitoring</title>
+                        <action>logmon/adminhtml_log/</action>
+                    </logmon>
+                 </children>
+            </system>
+        </menu>
+        <acl>
+            <resources>
+                <admin>
+                    <children>
+                        <system>
+                            <children>
+                                <logmon>
+                                    <title>Logging &amp; Monitoring</title>
+                                </logmon>
+                                <config>
+                                    <children>
+                                        <logmon>
+                                            <title>Logging &amp; Monitoring</title>
+                                        </logmon>
+                                    </children>
+                                </config>
+                            </children>
+                        </system>
+                    </children>
+                </admin>
+            </resources>
+        </acl>
+        <translate>
+            <modules>
+                <Unirgy_StoreLocator>
+                    <files>
+                        <default>Unirgy_StoreLocator.csv</default>
+                    </files>
+                </Unirgy_StoreLocator>
+            </modules>
+        </translate>
+    </adminhtml>
 </config>
