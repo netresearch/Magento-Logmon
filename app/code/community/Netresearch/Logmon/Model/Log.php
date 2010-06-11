@@ -26,10 +26,13 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
     const DEFAULT_TYPE_EXCEPTION  = 'exception';
     const DEFAULT_LEVEL_LOG       = Zend_Log::INFO;
     const DEFAULT_LEVEL_EXCEPTION = Zend_Log::ERR;
+    
+    public $config;
 
     protected function _construct()
     {
         $this->_init('logmon/log');
+        $this->config = Mage::getStoreConfig('dev/logmon');
     }
     
     /**
@@ -50,18 +53,6 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
      */
     public function log($log_data)
     {
-        /*
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `timestamp` datetime NOT NULL,
-  `type` varchar(100) NOT NULL,
-  `log_level` int(10) NOT NULL,
-  `module` varchar(100),
-  `exception` varchar(255),
-  `message` text,
-  `stack` text,
-  `data` text,
-  `error_key` varchar(100),
-        */
         try {
             $this->_data = $log_data;
             if (false == isset($this->_data['type'])) {
@@ -72,9 +63,9 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
                 );
             }
             if (false == isset($this->_data['log_level'])) {
-                $this->_data['type'] = empty($this->_data['exception'])
+                $this->setLogLevel(empty($this->_data['exception'])
                     ? self::DEFAULT_LEVEL_LOG
-                    : self::DEFAULT_LEVEL_EXCEPTION;
+                    : self::DEFAULT_LEVEL_EXCEPTION);
             }
             if (false == isset($this->_data['timestamp'])) {
                 $now = Zend_Date::now();
@@ -99,9 +90,68 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
                 $this->_data['data'] = json_encode($this->_data['data']);
             }
             
-            $this->save();
+            //$this->save();
+            
+            if ($this->getLogLevel() <= (int) $this->config['mailMaxLevel']) {
+                $this->sendMail();
+            }
         } catch (Exception $e) {
             // no logging if logging fails...
         }
+    }
+    
+    /**
+     * get log entry description
+     * 
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getShortDescription();
+    }
+    
+    /**
+     * get short description of the log entry
+     * 
+     * @return string
+     */
+    public function getShortDescription()
+    {
+        $string = 'Log #' . $this->getId();
+        if (false == empty($this->_data['message'])) {
+            $string .= ': ' . $this->getException();
+        } elseif (false == empty($this->_data['message'])) {
+            $string .= ': ' . $this->getMessage();
+        }
+        if (false == empty($this->_data['module'])) {
+            $string .= ' in ' . $this->getModule();
+        }
+        return $string;
+    }
+    
+    /**
+     * send a mail concerning the log entry
+     * 
+     * @return void
+     */
+    public function sendMail()
+    {
+        $vars = $this->_data;
+        $vars['short_description'] = $this->getShortDescription();
+        
+        // Recipients
+        $recipients = explode(',', $this->config['receiverMailAddress']);
+
+        $sender = array(
+            'name'  => Mage::getStoreConfig('trans_email/ident_general/name'),
+            'email' => Mage::getStoreConfig('trans_email/ident_general/email'),
+        );
+
+        /* @var $mail Mage_Core_Model_Email_Template */
+        $mail = Mage::getModel('core/email_template');
+        $mail->setTemplateSubject($vars['short_description']);
+        var_dump(__FILE__." auf Zeile ".__LINE__, $mail);exit;
+        $mail->sendTransactional((int) $this->config['mailTemplate'],
+                $sender, $recipients, null, $vars);
     }
 }

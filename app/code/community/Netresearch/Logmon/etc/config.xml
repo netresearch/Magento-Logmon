@@ -66,6 +66,15 @@
                 </connection>
             </logmon_read>
         </resources>
+        <template>
+            <email>
+                <logmonMailTemplate translate="label" module="logmon">
+                    <label>Logging Message</label>
+                    <file>logmon.html</file>
+                    <type>html</type>
+                </logmonMailTemplate>
+            </email>
+        </template>
     </global>
     <admin>
          <routers>
@@ -110,15 +119,24 @@
                     </children>
                 </admin>
             </resources>
-        </acl>
+        </acl><!-- 
         <translate>
             <modules>
-                <Unirgy_StoreLocator>
+                <Netresearch_Logmon>
                     <files>
-                        <default>Unirgy_StoreLocator.csv</default>
+                        <default>Netresearch_Logmon.csv</default>
                     </files>
-                </Unirgy_StoreLocator>
+                </Netresearch_Logmon>
             </modules>
-        </translate>
+        </translate> -->
     </adminhtml>
+    <default>
+        <dev>
+            <logmon>
+                <active_mage_log>1</active_mage_log>
+                <mailMaxLevel>4</mailMaxLevel>
+                <active_mage_logexception>1</active_mage_logexception>
+            </logmon>
+         </dev>
+    </default>
 </config>
