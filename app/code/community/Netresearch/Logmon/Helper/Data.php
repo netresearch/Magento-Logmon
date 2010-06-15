@@ -30,11 +30,11 @@ class Netresearch_Logmon_Helper_Data extends Mage_Core_Helper_Abstract
      * @param string $module  Name of the module, where the message comes from
      * @param mixed  $data    some additional data
      * 
-     * @return void
+     * @return int
      */
     public function logMessage($message, $level=null, $module=null, $data=null, $save_stack=false)
     {
-        Mage::getModel('logmon/log')->log(array(
+        return Mage::getModel('logmon/log')->log(array(
             'message'   => $message,
             'log_level' => $level,
             'data'      => $data,
@@ -47,11 +47,12 @@ class Netresearch_Logmon_Helper_Data extends Mage_Core_Helper_Abstract
      * write something to the log
      * 
      * @param array $log_data Data to log
-     * @return void
+     * 
+     * @return int
      */
     public function log($log_data)
     {
-        Mage::getModel('logmon/log')->log($log_data);
+        return Mage::getModel('logmon/log')->log($log_data);
     }
     
     /**
@@ -59,11 +60,12 @@ class Netresearch_Logmon_Helper_Data extends Mage_Core_Helper_Abstract
      * 
      * @param string $message Message to log
      * @param int    $level   Log level
-     * @return void
+     * 
+     * @return int
      */
     public function logException(Exception $e, $module=null, $data=null)
     {
-        Mage::getModel('logmon/log')->log(array(
+        return Mage::getModel('logmon/log')->log(array(
             'exception' => $e,
             'module'    => $module,
             'data'      => $data

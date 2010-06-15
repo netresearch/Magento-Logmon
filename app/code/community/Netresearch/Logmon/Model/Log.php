@@ -49,7 +49,7 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
      * 
      * @param array $log_data Associative array with fields defined above
      * 
-     * @return void
+     * @return int
      */
     public function log($log_data)
     {
@@ -98,6 +98,8 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
         } catch (Exception $e) {
             // no logging if logging fails...
         }
+        
+        return $this->getId();
     }
     
     /**
