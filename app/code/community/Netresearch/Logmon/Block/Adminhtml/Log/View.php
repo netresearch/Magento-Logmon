@@ -31,9 +31,6 @@ class Netresearch_Logmon_Block_Adminhtml_Log_View extends Mage_Adminhtml_Block_W
         $this->_blockGroup = 'logmon';
         $this->_controller = 'adminhtml_log';
 
-        //$this->_updateButton('save', 'label', Mage::helper('ustorelocator')->__('Save Location'));
-        //$this->_updateButton('delete', 'label', Mage::helper('ustorelocator')->__('Delete Location'));
-
         if( $this->getRequest()->getParam($this->_objectId) ) {
             $this->log = Mage::getModel('logmon/log')
                 ->load($this->getRequest()->getParam($this->_objectId));
@@ -43,8 +40,11 @@ class Netresearch_Logmon_Block_Adminhtml_Log_View extends Mage_Adminhtml_Block_W
 
     public function _toHtml()
     {
-        echo '<pre>';
-        var_dump($this->log->_data);
-        echo '</pre>';
+        $output = '<table>';
+        foreach($this->log->_data as $key=>$value) {
+            $output .= sprintf('<tr><th>%s</th><td><pre>%s</pre></td></tr>', $key, $value); 
+        }
+        $output .= '</table>';
+        echo $output;
     }
 }
