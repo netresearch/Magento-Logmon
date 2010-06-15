@@ -83,14 +83,14 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
                 }
                 $this->_data['exception'] = get_class($exception);
             }
-            if (isset($this->_data['stack']) and false == is_null($this->_data['stack'])) {
+            if (isset($this->_data['stack']) and false == is_null($this->_data['stack']) and false == is_string($this->_data['stack'])) {
                 $this->_data['stack'] = json_encode($this->_data['stack']);
             }
             if (isset($this->_data['data']) and false == is_null($this->_data['data'])) {
                 $this->_data['data'] = json_encode($this->_data['data']);
             }
             
-            //$this->save();
+            $this->save();
             
             if ($this->getLogLevel() <= (int) $this->config['mailMaxLevel']) {
                 $this->sendMail();
@@ -118,7 +118,7 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
     public function getShortDescription()
     {
         $string = 'Log #' . $this->getId();
-        if (false == empty($this->_data['message'])) {
+        if (false == empty($this->_data['exception'])) {
             $string .= ': ' . $this->getException();
         } elseif (false == empty($this->_data['message'])) {
             $string .= ': ' . $this->getMessage();
@@ -139,8 +139,15 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
         $vars = $this->_data;
         $vars['short_description'] = $this->getShortDescription();
         
+        if (isset($vars['stack']) and false == is_null($vars['stack'])) {
+            $vars['stack'] = print_r(json_decode($vars['stack']), true);
+        }
+        if (isset($vars['data']) and false == is_null($vars['data'])) {
+            $vars['data'] = print_r(json_decode($vars['data']), true);
+        }
+        
         // Recipients
-        $recipients = explode(',', $this->config['receiverMailAddress']);
+        $recipient = $this->config['receiverMailAddress'];
 
         $sender = array(
             'name'  => Mage::getStoreConfig('trans_email/ident_general/name'),
@@ -150,8 +157,7 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
         /* @var $mail Mage_Core_Model_Email_Template */
         $mail = Mage::getModel('core/email_template');
         $mail->setTemplateSubject($vars['short_description']);
-        var_dump(__FILE__." auf Zeile ".__LINE__, $mail);exit;
         $mail->sendTransactional((int) $this->config['mailTemplate'],
-                $sender, $recipients, null, $vars);
+                $sender, $recipient, null, $vars);
     }
 }

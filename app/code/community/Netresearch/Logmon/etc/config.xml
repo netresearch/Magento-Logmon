@@ -70,7 +70,7 @@
             <email>
                 <logmonMailTemplate translate="label" module="logmon">
                     <label>Logging Message</label>
-                    <file>logmon.html</file>
+                    <file>logmon_message.html</file>
                     <type>html</type>
                 </logmonMailTemplate>
             </email>
