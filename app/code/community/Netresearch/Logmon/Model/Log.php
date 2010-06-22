@@ -28,11 +28,25 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
     const DEFAULT_LEVEL_EXCEPTION = Zend_Log::ERR;
 
     public $config;
+    
+    public static $error_key;
 
     protected function _construct()
     {
         $this->_init('logmon/log');
         $this->config = Mage::getStoreConfig('dev/logmon');
+    }
+
+    /**
+     * generate key for this request
+     * 
+     * @return string
+     */
+    protected function getErrorKey() {
+        if (empty(self::$error_key)) {
+            self::$error_key = uniqid();
+        }
+        return self::$error_key;
     }
 
     /**
@@ -89,6 +103,7 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
             if (isset($this->_data['data']) and false == is_null($this->_data['data'])) {
                 $this->_data['data'] = Zend_Json::encode($this->_data['data']);
             }
+            $this->_data['error_key'] = $this->getErrorKey();
 
             $this->save();
 
