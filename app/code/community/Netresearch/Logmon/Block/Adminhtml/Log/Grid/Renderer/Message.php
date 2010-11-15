@@ -22,10 +22,11 @@
  */
 class Netresearch_Logmon_Block_Adminhtml_Log_Grid_Renderer_Message extends Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Abstract
 {
+    const MESSAGE_LENGTH = 60;
     public function render(Varien_Object $row) {
         $value = $row->getData($this->getColumn()->getIndex());
-        return str_replace('---snip---' , '<br />', substr($value, 0, 250))
-            . (250 < strlen($value) ? '<span style="color:red;font-weight:bold">...</span>' : '')
+        return str_replace('---snip---' , '<br />', substr($value, 0, self::MESSAGE_LENGTH))
+            . (self::MESSAGE_LENGTH < strlen($value) ? '<span style="color:red;font-weight:bold">...</span>' : '')
             . '<br /><a href="' . $this->getUrl('*/*/view', array('id' => $row->getId())) . '">more</a>';
     }
 }
