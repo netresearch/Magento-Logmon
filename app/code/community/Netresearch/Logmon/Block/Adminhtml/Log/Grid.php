@@ -76,6 +76,7 @@ class Netresearch_Logmon_Block_Adminhtml_Log_Grid extends Mage_Adminhtml_Block_W
         $this->addColumn('message', array(
             'header'    => Mage::helper('logmon')->__('Message'),
             'index'     => 'message',
+            'renderer'  => 'Netresearch_Logmon_Block_Adminhtml_Log_Grid_Renderer_Message'
         ));
 
         $this->addColumn('error_key', array(
