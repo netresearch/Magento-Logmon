@@ -155,6 +155,10 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
     {
         $vars = $this->_data;
         $vars['short_description'] = $this->getShortDescription();
+        
+        if (isset($this->_data['exception']) and 'Zend_Mail_Transport_Exception' == $this->_data['exception']) {
+            return;
+        }
 
         if (isset($vars['stack']) and false == is_null($vars['stack'])) {
             $vars['stack'] = print_r(json_decode($vars['stack']), true);
