@@ -43,13 +43,13 @@ class Netresearch_Logmon_Helper_Data extends Mage_Core_Helper_Abstract
                 $log = array('exception' => $log);
             } else {
                 // Write a simple message to the log.
-                $log = array(
-                    'message'   => $log,
-                    'log_level' => $level,
-                    'stack'     => ($stack ? debug_backtrace() : null));
+                $log = array('message'   => $log);
             }
             // Append additional data to log.
-            $log += array('data' => $data, 'module' => $module);
+            $log['data']      = $data;
+            $log['module']    = $module;
+            $log['log_level'] = $level;
+            $log['stack']     = ($stack ? debug_backtrace() : null);
         }
         return Mage::getModel('logmon/log')->log($log);
     }
