@@ -57,6 +57,7 @@ class Netresearch_Logmon_Block_Adminhtml_Log_Grid extends Mage_Adminhtml_Block_W
             'header'    => Mage::helper('logmon')->__('Timestamp'),
             'align'     => 'right',
             'index'     => 'timestamp',
+            'type'      => 'datetime',
             'width'     => '50px',
         ));
 
