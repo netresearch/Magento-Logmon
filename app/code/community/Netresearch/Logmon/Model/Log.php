@@ -156,12 +156,8 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
         $vars = $this->_data;
         $vars['short_description'] = $this->getShortDescription();
 
-        if (isset($vars['stack']) and false == is_null($vars['stack'])) {
-            $vars['stack'] = print_r(json_decode($vars['stack']), true);
-        }
-        if (isset($vars['data']) and false == is_null($vars['data'])) {
-            $vars['data'] = print_r(json_decode($vars['data']), true);
-        }
+        $this->prepareValueForMail($vars, 'stack');
+        $this->prepareValueForMail($vars, 'data');
 
         // Recipients
         $recipient = $this->config['receiverMailAddress'];
@@ -176,5 +172,23 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
         $mail->setTemplateSubject($vars['short_description']);
         $mail->sendTransactional((int) $this->config['mailTemplate'],
                 $sender, $recipient, null, $vars);
+    }
+    
+    /**
+     * convert arrays and object values into json
+     * 
+     * @param array  $vars
+     * @param string $key
+     * 
+     * @return void
+     */
+    protected function prepareValueForMail(&$vars, $key)
+    {
+        if (isset($vars[$key])
+            and false == is_null($vars[$key])
+            and (is_array($vars[$key]) or is_object($vars[$key]))
+        ) {
+            $vars[$key] = print_r(json_encode($vars[$key]), true);
+        }
     }
 }
