@@ -94,4 +94,22 @@ class Netresearch_Logmon_Model_Log_Api extends Mage_Catalog_Model_Api_Resource
     {
         return Mage::helper('logmon')->log($message, $level, $module, $data, $save_stack);
     }
+    
+    /**
+     * Extend log entry
+     * 
+     * @param int     $id         Log message id
+     * @param string  $message    Error message
+     * @param string  $separator  String to separate from previous log messages
+     */
+    public function extend($id, $message, $separator="\n---snip---\n")
+    {
+        $log = Mage::getModel('logmon/log')->load($id);
+
+        if (!$log->getId()) {
+            $this->_fault('not_exists');
+        }
+        $log->setMessage($log->getMessage() . $separator . $message);
+        $log->save();
+    }
 } // Class Netresearch_Logmon_Model_Log_Api End

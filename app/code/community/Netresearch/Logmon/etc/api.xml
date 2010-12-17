@@ -43,6 +43,10 @@
                         <title>Create new log entry</title>
                         <acl>logmon/log/create</acl>
                     </create>
+                    <extend translate="title" module="logmon">
+                        <title>Extend existing log entry</title>
+                        <acl>logmon/log/extend</acl>
+                    </extend>
                 </methods>
             </logmon_log>
         </resources>

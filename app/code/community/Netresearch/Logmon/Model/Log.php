@@ -69,37 +69,14 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
     {
         try {
             $this->_data = $log_data;
-            if (false == isset($this->_data['type'])) {
-                $this->setType(
-                    empty($this->_data['exception'])
-                        ? self::DEFAULT_TYPE_LOG
-                        : self::DEFAULT_TYPE_EXCEPTION
-                );
-            }
-            if (false == isset($this->_data['log_level'])) {
-                $this->setLogLevel(empty($this->_data['exception'])
-                    ? self::DEFAULT_LEVEL_LOG
-                    : self::DEFAULT_LEVEL_EXCEPTION);
-            }
-            if (false == isset($this->_data['timestamp'])) {
-                $now = Zend_Date::now();
-                $now->setTimezone('UTC');
-
-                $this->_data['timestamp'] = $now->toString('Y-M-d H:m:s');
-            }
-            if (isset($this->_data['exception']) and false == is_null($this->_data['exception'])) {
-                $exception = $this->_data['exception'];
-                if (empty($this->_data['message'])) {
-                    $this->_data['message'] = $exception->getMessage();
-                }
-                if (empty($this->_data['stack'])) {
-                    $this->_data['stack'] = $exception->getTraceAsString();
-                }
-                $this->_data['exception'] = get_class($exception);
-            }
-            if (isset($this->_data['stack']) and false == is_null($this->_data['stack']) and false == is_string($this->_data['stack'])) {
-                $this->_data['stack'] = @Zend_Json::encode($this->_data['stack']);
-            }
+            
+            $this->handleType();
+            $this->handleModule();
+            $this->handleLoglevel();
+            $this->handleTimestamp();
+            $this->handleException();
+            $this->handleStack();
+            
             if (isset($this->_data['data']) and false == is_null($this->_data['data'])) {
                 $this->_data['data'] = Zend_Json::encode($this->_data['data']);
             }
@@ -115,6 +92,83 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
         }
 
         return $this->getId();
+    }
+    
+    /**
+     * set log type if not given
+     *
+     * @return void
+     */
+    protected function handleType()
+    {
+        if (false == isset($this->_data['type'])) {
+            $this->setType(
+                empty($this->_data['exception'])
+                    ? self::DEFAULT_TYPE_LOG
+                    : self::DEFAULT_TYPE_EXCEPTION
+            );
+        }
+    }
+    
+    /**
+     * set log level if not given
+     *
+     * @return void
+     */
+    protected function handleLoglevel()
+    {
+        if (false == isset($this->_data['log_level'])) {
+            $this->setLogLevel(empty($this->_data['exception'])
+                ? self::DEFAULT_LEVEL_LOG
+                : self::DEFAULT_LEVEL_EXCEPTION);
+        }
+    }
+    
+    /**
+     * set timestamp to current time if not given
+     *
+     * @return void
+     */
+    protected function handleTimestamp()
+    {
+        if (false == isset($this->_data['timestamp'])) {
+            $now = Zend_Date::now();
+            $now->setTimezone('UTC');
+
+            $this->_data['timestamp'] = $now->toString('Y-M-d H:m:s');
+        }
+    }
+    
+    protected function handleException()
+    {
+        if (isset($this->_data['exception']) and false == is_null($this->_data['exception'])) {
+            $exception = $this->_data['exception'];
+            if (empty($this->_data['message'])) {
+                $this->_data['message'] = $exception->getMessage();
+            }
+            if (empty($this->_data['stack'])) {
+                $this->_data['stack'] = $exception->getTraceAsString();
+            }
+            $this->_data['exception'] = get_class($exception);
+        }
+    }
+    
+    protected function handleStack()
+    {
+        if (
+            isset($this->_data['stack'])
+            and false == is_null($this->_data['stack'])
+            and false == is_string($this->_data['stack'])
+        ) {
+            $this->_data['stack'] = @Zend_Json::encode($this->_data['stack']);
+        }
+    }
+    
+    protected function handleModule()
+    {
+        if (false == isset($this->_data['module'])) {
+            $this->_data['module'] = '(unknown)';
+        }
     }
 
     /**
@@ -155,6 +209,10 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
     {
         $vars = $this->_data;
         $vars['short_description'] = $this->getShortDescription();
+        
+        if (isset($this->_data['exception']) and 'Zend_Mail_Transport_Exception' == $this->_data['exception']) {
+            return;
+        }
 
         $this->prepareValueForMail($vars, 'stack');
         $this->prepareValueForMail($vars, 'data');
