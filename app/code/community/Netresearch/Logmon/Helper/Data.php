@@ -51,6 +51,9 @@ class Netresearch_Logmon_Helper_Data extends Mage_Core_Helper_Abstract
             $log['log_level'] = $level;
             $log['stack']     = ($stack ? debug_backtrace() : null);
         }
+        if (array_key_exists('stack', $log) and true === $log['stack']) {
+            $log['stack'] = debug_backtrace();
+        }
         return Mage::getModel('logmon/log')->log($log);
     }
 }
