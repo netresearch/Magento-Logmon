@@ -161,6 +161,8 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
             and false == is_string($this->_data['stack'])
         ) {
             $this->_data['stack'] = @Zend_Json::encode($this->_data['stack']);
+        } else {
+	    $this->_data['stack'] = @Zend_Json::encode(debug_backtrace());
         }
     }
     
