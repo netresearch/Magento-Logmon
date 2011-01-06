@@ -42,9 +42,41 @@ class Netresearch_Logmon_Block_Adminhtml_Log_View extends Mage_Adminhtml_Block_W
     {
         $output = '<table>';
         foreach($this->log->_data as $key=>$value) {
-            $output .= sprintf('<tr><th>%s</th><td><pre>%s</pre></td></tr>', $key, $value); 
+            if ($this->isJson($value)) {
+                $value = '<pre>' . Zend_Json::prettyPrint($value) . '</pre>';
+            } elseif ($this->isSerializedArray($value)) {
+                $value_lines = unserialize($value);
+                $value_output = '';
+                foreach ($value_lines as $key=>$line) {
+                    $value_output .= sprintf('<tr><td>%s</td><td>%s</td></tr>',
+                        $key,
+                        $line
+                    );
+                }
+                $value = '<table>' . $value_output . '</table>';
+            } else {
+                $value = '<pre>' . $value . '</pre>';
+            }
+            $output .= sprintf('<tr><th>%s</th><td>%s</td></tr>', $key, $value); 
         }
         $output .= '</table>';
         echo $output;
+    }
+    
+    protected function isJson($value)
+    {
+        try {
+            Zend_Json::decode($value);
+            return true;
+        } catch (Zend_Json_Exception $e) {
+            return false;
+        }
+    }
+    
+    protected function isSerializedArray($value)
+    {
+        $value = @unserialize($value);
+        $serialized = ($value == serialize(false) || $value !== false);
+        return ($serialized and is_array($value));
     }
 }
