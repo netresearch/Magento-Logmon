@@ -1,0 +1,30 @@
+<ul id="logmon_archive_template" style="display: none;">
+    <?php echo $this->getRowTemplateHtml() ?>
+</ul>
+<ul id="logmon_archive">
+<?php foreach ($this->getRules() as $id => $rule): ?>
+    <?php echo $this->getRowTemplateHtml($id) ?>
+<?php endforeach;?>
+</ul>
+<script type="text/javascript">
+cl = function() { return console.log.apply(console, arguments); };
+    function getConfigId() {
+        var existing_ids = new Array();
+        $$(".logmon_archive_counter").each(function(el){
+            configId = el.previousSiblings()[0].id.replace('headline-[', '').replace(']','');
+            existing_ids[configId] = true;
+        });
+        new_id=0;
+        while (new_id < 100){
+            new_id++;
+            if(!existing_ids[new_id]) {
+                return new_id;
+            }
+        }
+    }
+</script>
+<?php echo $this->getAddRowButtonHtml(
+    'logmon_archive',
+    'logmon_archive_template', 
+    $this->__('Add rule')
+); ?>

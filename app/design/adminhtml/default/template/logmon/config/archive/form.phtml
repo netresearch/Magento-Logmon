@@ -1,0 +1,28 @@
+<li style="border-bottom: 1px solid #D6D6D6; padding-bottom:10px; margin-bottom:10px;">
+    <h3 id="headline-[<?php echo $this->getId() ?>]">
+        <?php if($this->getId() == 0): ?>
+            <?php echo $this->__('New Rule')?>
+        <?php elseif ($this->getName()): ?>
+            <?php echo strip_tags($this->getName()) ?>
+        <?php  else: ?>  
+            <?php echo $this->__('Rule '). $this->getId() ?>
+        <?php endif; ?>
+        
+    </h3>
+    <span class="logmon_archive_counter" style="display:none"><?php echo $this->getId() ?></span>
+    <label>
+        <?php  echo $this->__('Logging Level') ?>
+    </label>
+    <input name="<?php echo $this->getElementName()?>[<?php echo $this->getId() ?>][level]" class="input-text validate-digits" value="<?php echo $this->getLevel()?>" id="input-level-[<?php echo $this->getId()?>]" /><br /> 
+    <label>
+        <?php echo $this->__('Days');?>
+    </label>
+    <br />
+    <input name="<?php echo $this->getElementName()?>[<?php echo $this->getId() ?>][days]" class="input-text validate-digits" value="<?php echo $this->getDays()?>" /><br /> 
+    <p class="note">
+    <span>
+        <?php echo $this->__('Archive log messages after this number of days.') ?>
+    </span>
+    </p>
+    <?php echo $this->getRemoveRowButtonHtml() ?>
+</li>

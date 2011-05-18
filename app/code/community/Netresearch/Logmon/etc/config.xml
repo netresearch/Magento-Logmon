@@ -136,7 +136,20 @@
                 <active_mage_log>1</active_mage_log>
                 <mailMaxLevel>4</mailMaxLevel>
                 <active_mage_logexception>1</active_mage_logexception>
+                <archiveFile>archive/{level}.log</archiveFile>
             </logmon>
          </dev>
     </default>
+    <crontab>
+        <jobs>
+            <archive_logging_messages>
+                <schedule>
+                    <cron_expr>3 30 * * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>logmon/observer::archive</model>
+                </run>
+            </archive_logging_messages>
+        </jobs>
+    </crontab>
 </config>
