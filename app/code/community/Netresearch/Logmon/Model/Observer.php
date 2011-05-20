@@ -44,35 +44,43 @@ class Netresearch_Logmon_Model_Observer extends Mage_Core_Model_Abstract
     
     public function archive()
     {
+        $foundLogsToArchive = false;
         foreach ($this->getArchiveConfig() as $level=>$days) {
             if ((int) $level !== 0) {
+                $archiveDate = time() - ( $days * 24 * 60 * 60);
+                echo "Archiving Level $level older than " . date('Y.m.d', $archiveDate) . "\n";
                 $logs = Mage::getModel('logmon/log')->getCollection()
                     ->addFieldToFilter('log_level', $level)
-                    ->addFieldToFilter('timestamp', array('lt' => date('Y:m:d H:i:s', time())));
-                foreach ($logs as $log) {
-                    $insert = sprintf('INSERT INTO %s SET
-                        id=%d,
-                        timestamp="%s",
-                        type="%s",
-                        log_level=%d,
-                        module="%s",
-                        exception="%s",
-                        message="%s",
-                        stack="%s",
-                        data="%s",
-                        error_key="%s"',
-                        Mage::getModel('logmon/log')->getTableName(),
-                        $log->getId(),
-                        $log->getTimestamp(),
-                        $log->getType(),
-                        $log->getLogLevel(),
-                        $log->getModule(),
-                        $log->getException(),
-                        $log->getMessage(),
-                        $log->getStack(),
-                        $log->getData(),
-                        $log->getErrorKey()
+                    ->addFieldToFilter(
+                        'timestamp',
+                        array('lt' => date('Y:m:d H:i:s', $archiveDate))
                     );
+                if (0 == $logs->count()) {
+                    echo "No logs found.\n";
+                    continue;
+                }
+                if (false == $foundLogsToArchive) {
+                    $foundLogsToArchive = true;
+                    $this->backupOldLogs();
+                }
+                $insert = sprintf('INSERT INTO %s (id, timestamp, type, log_level, module, '
+                    . 'exception, message, stack, data, error_key) VALUES ',
+                    Mage::getSingleton('core/resource')->getTableName('logmon/log')
+                );
+                $insert .= "\n";
+                $writtenBytes = file_put_contents(
+                    $this->getLogFile($level),
+                    $insert,
+                    FILE_APPEND
+                );
+                if (0 == $writtenBytes) {
+                    throw new Exception('Could not archive logmon data to ' . $this->getLogFile($level));
+                }
+                $remaining = $logs->count();
+                foreach ($logs as $log) {
+                    $insert = "\n" . $this->getInsertDataForLog($log);
+                    $remaining--;
+                    $insert .= (0 == $remaining) ? ';' : ',';
                     
                     $writtenBytes = file_put_contents(
                         $this->getLogFile($level),
@@ -85,5 +93,39 @@ class Netresearch_Logmon_Model_Observer extends Mage_Core_Model_Abstract
                 }
             }
         }
+    }
+
+    /**
+     * create string for insert statement of one log entry
+     *
+     * @param Netresearch_Logmon_Model_Log $log Log entry
+     *
+     * @return string
+     */
+    protected function getInsertDataForLog(Netresearch_Logmon_Model_Log $log)
+    {
+        return sprintf('(%d, "%s", "%s", %d, "%s", "%s", "%s", "%s", "%s", "%s")',
+            $log->getId(),
+            addslashes($log->getTimestamp()),
+            addslashes($log->getType()),
+            $log->getLogLevel(),
+            addslashes($log->getModule()),
+            addslashes($log->getExceptionString()),
+            addslashes($log->getMessage()),
+            addslashes($log->getStackString()),
+            addslashes($log->getDataString()),
+            $log->getErrorKey()
+        );
+    }
+
+    /**
+     * @todo
+     * backup existing log archives
+     *
+     * @return void
+     */
+    protected function backupOldLogs()
+    {
+        // to be implemented
     }
 }

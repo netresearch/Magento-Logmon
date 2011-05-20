@@ -251,4 +251,47 @@ class Netresearch_Logmon_Model_Log extends Mage_Core_Model_Abstract
             $vars[$key] = print_r(json_encode($vars[$key]), true);
         }
     }
+
+    /**
+     * convert exception to string
+     *
+     * @return string
+     */
+    protected function getExceptionString()
+    {
+        return $this->getStringValue($this->getException());
+    }
+
+    /**
+     * convert stack to string
+     *
+     * @return string
+     */
+    protected function getStackString()
+    {
+        return $this->getStringValue($this->getStack());
+    }
+
+    /**
+     * convert data to string
+     *
+     * @return string
+     */
+    protected function getDataString()
+    {
+        return $this->getStringValue($this->getData());
+    }
+
+    /**
+     * convert value to string
+     *
+     * @return string
+     */
+    protected function getStringValue($value)
+    {
+        if (is_array($value) || is_object($value)) {
+            return json_encode($value);
+        }
+        return $value;
+    }
 }
