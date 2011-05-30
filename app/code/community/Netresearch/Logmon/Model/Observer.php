@@ -116,6 +116,7 @@ class Netresearch_Logmon_Model_Observer extends Mage_Core_Model_Abstract
                     throw new Exception('Could not archive logmon data to ' . $this->getLogFile($level));
                 }
                 $remaining = $logs->count();
+                $archivedLogs = 0;
                 foreach ($logs as $log) {
                     $insert = "\n" . $this->getInsertDataForLog($log);
                     $remaining--;
@@ -128,8 +129,10 @@ class Netresearch_Logmon_Model_Observer extends Mage_Core_Model_Abstract
                     );
                     if (0 < $writtenBytes) {
                         $log->delete();
+                        ++$archivedLogs;
                     }
                 }
+                echo 'Archived ' . $archivedLogs . ' logs for level ' . $level . ".\n";
             }
         }
     }
