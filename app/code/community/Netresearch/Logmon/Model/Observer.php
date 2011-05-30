@@ -41,12 +41,46 @@ class Netresearch_Logmon_Model_Observer extends Mage_Core_Model_Abstract
                 Mage::getStoreConfig('dev/logmon/archiveFile')
             );
     }
-    
+
+    /**
+     * prepare log file (creating directory and file)
+     * 
+     * @param int $level
+     *
+     * @return boolean Success
+     */
+    protected function prepareLogFile($level)
+    {
+        $file = $this->getLogFile($level);
+        $dir  = dirname($file);
+        if (false == is_dir($dir)) {
+            if (false == mkdir($dir)) {
+                Mage::log('could not create logmon archive directory ' . $dir);
+                return false;
+            }
+        }
+        if (false == file_exists($file)) {
+            if (false == touch($file)) {
+                Mage::log('could not create logmon archive file ' . $file);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * archive old logs
+     *
+     * @return void
+     */
     public function archive()
     {
         $foundLogsToArchive = false;
         foreach ($this->getArchiveConfig() as $level=>$days) {
             if ((int) $level !== 0) {
+                if (false === $this->prepareLogFile($level)) {
+                    continue;
+                }
                 $archiveDate = time() - ( $days * 24 * 60 * 60);
                 echo "Archiving Level $level older than " . date('Y.m.d', $archiveDate) . "\n";
                 $logs = Mage::getModel('logmon/log')->getCollection()
