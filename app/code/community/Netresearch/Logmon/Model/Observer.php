@@ -83,12 +83,17 @@ class Netresearch_Logmon_Model_Observer extends Mage_Core_Model_Abstract
                 }
                 $archiveDate = time() - ( $days * 24 * 60 * 60);
                 echo "Archiving Level $level older than " . date('Y.m.d', $archiveDate) . "\n";
-                $logs = Mage::getModel('logmon/log')->getCollection()
-                    ->addFieldToFilter('log_level', $level)
-                    ->addFieldToFilter(
-                        'timestamp',
-                        array('lt' => date('Y:m:d H:i:s', $archiveDate))
-                    );
+                $logs = Mage::getModel('logmon/log')->getCollection();
+                if (preg_match('/[1-9]+-[1-9]+/', $level)) {
+                    list($min, $max) = explode('-', $level);
+                    $logs->addFieldToFilter('log_level', array('from' => $min, 'to' => $max));
+                } else {
+                    $logs->addFieldToFilter('log_level', $level);
+                }
+                $logs->addFieldToFilter(
+                    'timestamp',
+                    array('lt' => date('Y:m:d H:i:s', $archiveDate))
+                );
                 if (0 == $logs->count()) {
                     echo "No logs found.\n";
                     continue;
