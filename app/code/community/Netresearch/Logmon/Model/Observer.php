@@ -54,7 +54,7 @@ class Netresearch_Logmon_Model_Observer extends Mage_Core_Model_Abstract
         $file = $this->getLogFile($level);
         $dir  = dirname($file);
         if (false == is_dir($dir)) {
-            if (false == mkdir($dir)) {
+            if (false == @mkdir($dir)) {
                 Mage::log('could not create logmon archive directory ' . $dir);
                 return false;
             }
