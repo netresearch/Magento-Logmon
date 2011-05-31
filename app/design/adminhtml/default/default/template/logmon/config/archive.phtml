@@ -22,6 +22,12 @@ cl = function() { return console.log.apply(console, arguments); };
             }
         }
     }
+
+    Validation.add('validate-loglevels', '<?php echo $this->__('Please enter a valid log level or range') ?>',
+        function(v) {
+            return Validation.get('validate-digits').test(v) ||  /^[\d]+-[\d]+$/.test(v);
+        }
+    );
 </script>
 <?php echo $this->getAddRowButtonHtml(
     'logmon_archive',
